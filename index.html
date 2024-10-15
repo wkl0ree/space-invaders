@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invasores Espaciales II</title>
+    <style type="text/css">
+        body {
+            background-image:url(espacio3.jpg);
+        }
+        .nave {
+            position: absolute;
+            background-image: url("nave1.png");
+            background-size: contain;
+            width: 70px;
+            height: 80px;
+        }
+        .alien {
+            position: absolute;
+            background-image: url("alien.png"); 
+            background-size: contain;
+            width: 70px;
+            height: 75px;
+        }
+        .disparo {
+            position: absolute;
+            background-color: rgb(0, 21, 255); 
+            width: 5px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="espacio">
+        <div id="naves"></div>
+        <div id="aliens"></div>
+        <div id="disparos"></div>
+    </div>
+
+    <script type="text/javascript">
+        var nave = {
+            left: 450,
+            top: 620
+        };
+
+        var aliens = [
+            {left: 350, top: 200, direction: 1},
+            {left: 450, top: 175, direction: 1},
+            {left: 150, top: 300, direction: 1},
+            {left: 750, top: 175, direction: 1},
+            {left: 950, top: 225, direction: 1},
+            {left: 1050, top: 205, direction: 1},
+            {left: 1250, top: 405, direction: 1},
+            {left: 1300, top: 305, direction: 1}
+        ];
+
+        var disparos = [];
+
+        function dibujaNave() {
+            var contenido = "<div class='nave' style='left:" + nave.left + "px; top:" + nave.top + "px'></div>";
+            document.getElementById("naves").innerHTML = contenido;
+        }
+        
+        function dibujaAliens() {
+            var contenido = "";
+            for (var x = 0; x < aliens.length; x++) {
+                contenido += "<div class='alien' style='left:" + aliens[x].left + "px; top:" + aliens[x].top + "px'></div>";
+            }
+            document.getElementById("aliens").innerHTML = contenido;
+        }
+
+        function dibujaDisparos() {
+            var contenido = "";
+            for (var x = 0; x < disparos.length; x++) {
+                contenido += "<div class='disparo' style='left:" + disparos[x].left + "px; top:" + disparos[x].top + "px'></div>";
+            }
+            document.getElementById("disparos").innerHTML = contenido;
+        }
+
+        dibujaNave();
+        dibujaAliens();
+
+        document.onkeydown = function(e) {
+            if (e.keyCode === 37 && nave.left > 0) { // Izquierda
+                nave.left -= 15;
+            }
+
+            if (e.keyCode === 39 && nave.left < 1300) { // Derecha
+                nave.left += 15;
+            }
+
+            if (e.keyCode === 38 && nave.top > 0) { // Arriba
+                nave.top -= 10;
+                if (nave.top < 0) nave.top = 0;
+            }
+            
+            if (e.keyCode === 40 && nave.top < 470) { // Abajo
+                nave.top += 10;
+                if (nave.top > 620) nave.top = 620; 
+            }
+
+            if (e.keyCode === 32) { 
+                disparos.push({left: nave.left + 32, top: nave.top}); 
+            }
+
+            dibujaNave();
+        };
+
+        function moverAliens() {
+            for (var x = 0; x < aliens.length; x++) {
+                aliens[x].top += 2 * aliens[x].direction; 
+                if (aliens[x].top > 700 || aliens[x].top < 0) {
+                    aliens[x].direction *= -1; 
+                }
+            }
+        }
+
+        function moverDisparos() {
+            for (var x = 0; x < disparos.length; x++) {
+                disparos[x].top -= 8; 
+                if (disparos[x].top < 0) {
+                    disparos.splice(x, 1); 
+                    x--; 
+                }
+            }
+        }
+
+        function detectarColisiones() {
+            for (var i = 0; i < disparos.length; i++) {
+                for (var j = 0; j < aliens.length; j++) {
+                    
+                    if (disparos[i].left >= aliens[j].left && disparos[i].left <= aliens[j].left + 70 &&
+                        disparos[i].top <= aliens[j].top + 75 && disparos[i].top >= aliens[j].top) {
+                        aliens.splice(j, 1);
+                        disparos.splice(i, 1);
+                        i--; 
+                        crearNuevoAlien();
+                        break;
+                    }
+                }
+            }
+        }
+
+        function crearNuevoAlien() {
+            var nuevoAlien = {
+                left: Math.floor(Math.random() * (800)), 
+                top: 0, 
+                direction: 1
+            };
+            aliens.push(nuevoAlien);
+        }
+
+        function bucle() {
+            moverAliens();
+            moverDisparos();
+            detectarColisiones(); 
+            dibujaAliens();
+            dibujaDisparos();
+            setTimeout(bucle, 50);
+        }
+        bucle();
+    </script>
+
+</body>
+</html>
